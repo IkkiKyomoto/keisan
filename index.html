@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <title>計算の達人</title>
+    <link rel="stylesheet" href="stylesheet.css">
+    <script>
+      var id = 0;
+      var timer = 0;
+      function getRandom(min,max) {
+        return Math.floor(Math.random() * (max + 1 - min));
+      }
+      function getSymbol() {
+        return Math.floor(Math.random() * 2);
+      }
+      function getCount() {
+        var date = new Date();
+        return date.getTime();
+      }
+    </script>
+  </head>
+  <body>
+    <h1>計算の達人</h1>
+    <section id="question">
+
+    </section>
+    <div id="nameBox">
+      <p>名前を入力</p>
+      <input type="text" id="user">
+    </div>
+    <section id="operation">
+      <input type="button" name="start" class="start" value="START" onclick="createInput()">
+    </section>
+    <section class="scoreZone">
+      <div class="score"></div>
+    </section>
+    </body>
+  <script>
+    var question = document.getElementById("question");
+    var start = document.getElementsByName("start");
+    var operation = document.getElementById("operation");
+    var score = document.getElementsByClassName("score");
+    var user = document.getElementById("user");
+    var nameBox = document.getElementById("nameBox");
+    user.onkeypress = (e) => {
+      const key = e.keyCode || e.charCode || 0;
+      if (key == 13) {
+        createInput()
+      }
+    }
+    if (localStorage["bestscore"]) {
+      score[0].textContent = "ベストスコアは  " + localStorage["bestUser"] + "  さんの  " + (localStorage["bestscore"] - 0) / 100 + "秒  です";
+    }
+    function createInput() {
+      operation.innerHTML = `<input type="text" id="input" class="start" autofocus>`;
+      score[0].remove();
+      nameBox.remove();
+      timer = getCount();
+      starting();
+    }
+    function starting() {
+      var left = "";
+      var right = "";
+      var symbol = 0;
+      var symbols = ["+","-","×","÷"];
+      var correct = 0;
+      do {
+        var left = String(getRandom(10,99));
+        var right = String(getRandom(10,99));
+        var symbol = getSymbol();
+        if (symbol == 0) {
+          correct = (left - 0) + (right - 0);
+        }else if (symbol == 1) {
+          correct = (left - 0) - (right - 0);
+        }else if (symbol == 2) {
+          correct = (left - 0) * (right - 0);
+        }else {
+          correct = (left - 0) / (right - 0);
+        }
+      } while (correct < 0);
+      input.setAttribute("onchange","judge(" + correct + ")");
+      question.textContent = left + symbols[symbol] + right;
+    }
+
+    function judge(a){
+      const input = document.getElementById("input");
+      if(a == input.value) {
+        if (id < 9) {
+          starting();
+        }else {
+          var time = Math.floor((getCount() - timer) / 10);
+          if (localStorage["bestscore"]) {
+            if (localStorage["bestscore"] - 0 > time) {
+              localStorage["bestscore"] = time;
+              if (user.value) {
+                localStorage["bestUser"] = user.value;
+              }else {
+                localStorage["bestUser"] = "ゲスト";
+              }
+            }
+          }else {
+            localStorage["bestscore"] = time;
+            if (user.value) {
+              localStorage["bestUser"] = user.value;
+            }else {
+              localStorage["bestUser"] = "ゲスト";
+            }
+
+          }
+          window.alert("あなたの記録は" + time / 100 + "秒です");
+          location.reload();
+        }
+        id++;
+      }
+      input.value = "";
+    }
+  </script>
+</html>
